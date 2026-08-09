@@ -1,0 +1,21 @@
+{
+  "name": "ladno",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Демонстрационная система счетов, склада и управленческих финансов с подготовкой к read-only OData 1С",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "validate": "node scripts/validate.mjs",
+    "serve": "node scripts/serve.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Aleksandr-Litvinenko/ladno.git"
+  },
+  "homepage": "https://ladno.product1c.ru"
+}

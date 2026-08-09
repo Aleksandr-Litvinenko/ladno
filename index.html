@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Ladno — демонстрационная система сквозного учёта счетов, склада и управленческих финансов с подготовкой к обмену с 1С по OData.">
+    <meta name="theme-color" content="#07101d">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="ru_RU">
+    <meta property="og:title" content="Ladno · Счета, склад и финансы">
+    <meta property="og:description" content="Интерактивное демо сквозной работы со счетами, складом, P&L, Cash Flow и платёжным календарём.">
+    <meta property="og:url" content="https://ladno.product1c.ru/">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'">
+    <title>Ladno · Счета, склад и финансы</title>
+    <link rel="canonical" href="https://ladno.product1c.ru/">
+    <link rel="stylesheet" href="./styles.css?v=0.1.0-r2">
+    <script type="module" src="./app.js?v=0.1.0-r2"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">К основному содержанию</a>
+
+    <div class="app-shell" data-app-shell>
+      <aside class="sidebar" aria-label="Боковая панель">
+        <a class="brand" href="#overview" aria-label="Ladno — на обзор">
+          <span class="brand-mark" aria-hidden="true"><span></span></span>
+          <span><b>Ladno</b><small>Управленческий контур</small></span>
+        </a>
+        <nav class="primary-nav" aria-label="Основная навигация" data-primary-nav></nav>
+        <div class="sidebar-foot">
+          <a href="#integration" class="sync-mini" data-sync-mini>
+            <span class="sync-dot" aria-hidden="true"></span>
+            <span><b>1С OData</b><small>Демо-контур</small></span>
+          </a>
+          <p>v0.1.0 · Сквозной контур</p>
+        </div>
+      </aside>
+
+      <header class="topbar">
+        <button class="icon-button menu-button" type="button" data-open-navigation aria-label="Открыть навигацию">
+          <span aria-hidden="true">☰</span>
+        </button>
+        <div class="organization-switcher" aria-label="Текущая организация">
+          <span aria-hidden="true">Л</span>
+          <span><b>ООО «Ладно»</b><small>Демонстрационные данные</small></span>
+        </div>
+        <search class="global-search">
+          <form data-global-search-form>
+            <label class="visually-hidden" for="global-query">Поиск по счетам и номенклатуре</label>
+            <input id="global-query" name="q" type="search" placeholder="Номер, контрагент, товар…" autocomplete="off">
+            <button type="submit">Найти</button>
+          </form>
+        </search>
+        <div class="topbar-actions">
+          <button class="button button-secondary search-compact" type="button" data-open-search aria-label="Поиск">
+            <span class="search-icon" aria-hidden="true">⌕</span><span class="search-label">Поиск</span>
+          </button>
+          <button class="button button-primary" type="button" data-open-create><span aria-hidden="true">+</span> Создать</button>
+        </div>
+      </header>
+
+      <main id="main-content" class="main-content" tabindex="-1">
+        <div class="stale-banner" data-stale-banner hidden>
+          <span aria-hidden="true">!</span>
+          <p><b>Данные 1С могут быть неактуальны.</b> Проверьте журнал импорта.</p>
+          <a href="#integration">К интеграции</a>
+        </div>
+        <div class="view" data-view aria-live="off"></div>
+      </main>
+    </div>
+
+    <dialog class="navigation-dialog" data-navigation-dialog aria-labelledby="navigation-title">
+      <div class="dialog-head">
+        <div>
+          <p class="kicker">Разделы</p>
+          <h2 id="navigation-title">Навигация</h2>
+        </div>
+        <button class="icon-button" type="button" data-close-dialog aria-label="Закрыть навигацию">×</button>
+      </div>
+      <nav class="mobile-nav" aria-label="Мобильная навигация" data-mobile-nav></nav>
+    </dialog>
+
+    <dialog class="detail-dialog" data-detail-dialog aria-labelledby="detail-title">
+      <div class="dialog-head detail-dialog-head">
+        <div data-detail-heading></div>
+        <button class="icon-button" type="button" data-close-dialog aria-label="Закрыть карточку">×</button>
+      </div>
+      <div class="detail-dialog-body" data-detail-body></div>
+      <div class="detail-dialog-actions" data-detail-actions></div>
+    </dialog>
+
+    <dialog class="create-dialog" data-create-dialog aria-labelledby="create-title">
+      <form class="create-form" data-create-form novalidate>
+        <div class="dialog-head">
+          <div>
+            <p class="kicker">Новая операция</p>
+            <h2 id="create-title">Создать документ</h2>
+          </div>
+          <button class="icon-button" type="button" data-close-dialog aria-label="Закрыть форму">×</button>
+        </div>
+
+        <div class="form-summary" tabindex="-1" data-form-summary hidden></div>
+
+        <div class="form-grid">
+          <div class="field field-wide">
+            <label for="create-type">Тип операции</label>
+            <select id="create-type" name="type" required data-create-type>
+              <option value="supplier_invoice">Счёт поставщика</option>
+              <option value="customer_invoice">Счёт покупателю</option>
+              <option value="receipt">Поступление на склад</option>
+              <option value="shipment">Отгрузка со склада</option>
+            </select>
+          </div>
+
+          <div class="field" data-invoice-field>
+            <label for="create-counterparty">Контрагент</label>
+            <input id="create-counterparty" name="counterparty" maxlength="120" autocomplete="organization" value="ООО «Новый контрагент»">
+            <p class="field-error" id="counterparty-error"></p>
+          </div>
+          <div class="field" data-invoice-field>
+            <label for="create-due-date">Срок оплаты</label>
+            <input id="create-due-date" name="dueDate" type="date">
+            <p class="field-error" id="due-date-error"></p>
+          </div>
+          <div class="field field-wide" data-invoice-field>
+            <label for="create-purpose">Назначение</label>
+            <input id="create-purpose" name="purpose" maxlength="180" value="Тестовый счёт">
+            <p class="field-error" id="purpose-error"></p>
+          </div>
+          <div class="field" data-invoice-field>
+            <label for="create-amount">Сумма, ₽</label>
+            <input id="create-amount" name="amount" type="text" inputmode="decimal" value="120000,00" aria-describedby="amount-hint amount-error">
+            <p class="field-hint" id="amount-hint">Введите сумму с копейками или без.</p>
+            <p class="field-error" id="amount-error"></p>
+          </div>
+          <div class="field" data-invoice-field>
+            <label for="create-operation-kind">Тип позиции</label>
+            <select id="create-operation-kind" name="operationKind" aria-describedby="service-accounting-hint">
+              <option value="goods">Товар</option>
+              <option value="service">Услуга</option>
+            </select>
+            <p class="field-hint" id="service-accounting-hint">Для услуги эта версия создаёт счёт; запись P&amp;L отражается отдельно.</p>
+          </div>
+
+          <div class="field field-wide" data-stock-field hidden>
+            <label for="create-stock-item">Номенклатура</label>
+            <select id="create-stock-item" name="stockItem"></select>
+          </div>
+          <div class="field" data-stock-field hidden>
+            <label for="create-quantity">Количество</label>
+            <input id="create-quantity" name="quantity" type="text" inputmode="decimal" value="1" aria-describedby="quantity-error">
+            <p class="field-error" id="quantity-error"></p>
+          </div>
+          <div class="field" data-stock-field hidden>
+            <label for="create-unit-cost">Цена за единицу, ₽</label>
+            <input id="create-unit-cost" name="unitCost" type="text" inputmode="decimal" value="1000,00">
+          </div>
+        </div>
+
+        <div class="dialog-actions">
+          <button class="button button-secondary" type="button" data-close-dialog>Отмена</button>
+          <button class="button button-primary" type="submit" data-create-submit>Создать черновик</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="search-dialog" data-search-dialog aria-labelledby="search-title">
+      <div class="dialog-head">
+        <div>
+          <p class="kicker">Быстрый поиск</p>
+          <h2 id="search-title">Найти в Ladno</h2>
+        </div>
+        <button class="icon-button" type="button" data-close-dialog aria-label="Закрыть поиск">×</button>
+      </div>
+      <form class="dialog-search" data-dialog-search-form>
+        <label for="dialog-query">Номер, контрагент или номенклатура</label>
+        <div>
+          <input id="dialog-query" name="q" type="search" required autocomplete="off">
+          <button class="button button-primary" type="submit">Найти</button>
+        </div>
+      </form>
+      <div class="search-results" data-search-results></div>
+    </dialog>
+
+    <div class="toast-region" aria-hidden="true" data-toast-region></div>
+    <p class="visually-hidden" role="status" aria-live="polite" data-live-status></p>
+    <p class="visually-hidden" role="alert" aria-live="assertive" data-alert-status></p>
+  </body>
+</html>
